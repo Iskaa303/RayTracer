@@ -1,0 +1,36 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "SDL2",
+            "command": "C:\\MinGW64\\bin\\g++.exe",
+            "args": [
+                "-g",
+                "-Ofast",
+                "src\\*.cpp",
+                "src\\RayTrace\\*.cpp",
+                "-o",
+                "build\\game.exe",
+                "-IC:/sdk/sdl2/x86_64-w64-mingw32/include",
+                "-LC:/sdk/sdl2/x86_64-w64-mingw32/lib",
+                "-lmingw32",
+                "-lSDL2main",
+                "-lSDL2",
+                "-mwindows",
+                "-static-libgcc",
+                "-static-libstdc++"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
