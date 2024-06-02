@@ -1,9 +1,9 @@
 #ifndef OBJECTBASE_H
 #define OBJECTBASE_H
 
-#include "../LinAlg/Vector.h"
-#include "ray.hpp"
-#include "gtfm.hpp"
+#include "../../LinAlg/Vector.h"
+#include "../ray.hpp"
+#include "../gtfm.hpp"
 
 namespace RT
 {

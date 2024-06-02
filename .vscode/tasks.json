@@ -10,6 +10,8 @@
                 "-Ofast",
                 "src\\*.cpp",
                 "src\\RayTrace\\*.cpp",
+                "src\\RayTrace\\Lights\\*.cpp",
+                "src\\RayTrace\\Primatives\\*.cpp",
                 "-o",
                 "build\\game.exe",
                 "-IC:/sdk/sdl2/x86_64-w64-mingw32/include",

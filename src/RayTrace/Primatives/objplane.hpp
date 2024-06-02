@@ -1,22 +1,19 @@
-#ifndef OBJSPHERE_H
-#define OBJSPHERE_H
+#ifndef OBJPLANE_H
+#define OBJPLANE_H
 
 #include "objectbase.hpp"
-#include "gtfm.hpp"
+#include "../gtfm.hpp"
 
 namespace RT
 {
-    class ObjSphere : public ObjectBase
+    class ObjPlane : public ObjectBase
     {
         public:
-            /* 
-            The default constructor.
-            Note that this will define a unit sphere at the origin
-            */
-            ObjSphere();
+            // The default constructor
+            ObjPlane();
 
             // Override the destructor
-            virtual ~ObjSphere() override;
+            virtual ~ObjPlane() override;
 
             // Override the function to test for intersections
             virtual bool TestIntersection

@@ -2,9 +2,9 @@
 #define LIGHTBASE_H
 
 #include <memory>
-#include "../LinAlg/Vector.h"
-#include "ray.hpp"
-#include "objectbase.hpp"
+#include "../../LinAlg/Vector.h"
+#include "../ray.hpp"
+#include "../Primatives/objectbase.hpp"
 
 namespace RT
 {

@@ -67,6 +67,10 @@ RT::Scene::Scene()
     m_lightList.push_back(std::make_shared<RT::PointLight> (RT::PointLight()));
     m_lightList.at(1) -> m_location = Vector<double> {std::vector<double> {-5.0, -10.0, -5.0}};
     m_lightList.at(1) -> m_color = Vector<double> {std::vector<double> {1.0, 0.0, 0.0}};
+	
+	m_lightList.push_back(std::make_shared<RT::PointLight> (RT::PointLight()));
+	m_lightList.at(2) -> m_location = Vector<double> {std::vector<double> {0.0, -10.0, -5.0}};
+	m_lightList.at(2) -> m_color = Vector<double> {std::vector<double> {0.0, 1.0, 0.0}};
 
 }
 

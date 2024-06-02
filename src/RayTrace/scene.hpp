@@ -6,9 +6,9 @@
 #include <SDL2/SDL.h>
 #include "Image.hpp"
 #include "camera.hpp"
-#include "objsphere.hpp"
-#include "objplane.hpp"
-#include "pointlight.hpp"
+#include "./Primatives/objsphere.hpp"
+#include "./Primatives/objplane.hpp"
+#include "./Lights/pointlight.hpp"
 
 namespace RT
 {
