@@ -9,6 +9,7 @@
 #include "./Primatives/objsphere.hpp"
 #include "./Primatives/objplane.hpp"
 #include "./Lights/pointlight.hpp"
+#include "./Materials/simplematerial.hpp"
 
 namespace RT
 {
@@ -20,6 +21,14 @@ namespace RT
 
             // Function to perform 
             bool Render(Image &outputImage);
+
+            // Function to cast a ray into the scene
+            bool CastRay
+            (
+                RT::Ray &castRay, std::shared_ptr<RT::ObjectBase> &closestObject,
+                Vector<double> &closestIntPoint, Vector<double> &closestLocalNormal,
+                Vector<double> &closestLocalColor
+            );
         
         // Private functions
         private:

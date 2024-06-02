@@ -27,6 +27,14 @@ void RT::ObjectBase::SetTransformMatrix(const RT::GTform &transformMatrix)
     m_transformMatrix = transformMatrix;
 }
 
+// Function to assign a material
+bool RT::ObjectBase::AssignMaterial(const std::shared_ptr<RT::MaterialBase> &objectMaterial)
+{
+	m_pMaterial = objectMaterial;
+	m_hasMaterial = true;
+	return m_hasMaterial;
+}
+
 // Function to test whether two floating-point numbers are close to being equal
 bool RT::ObjectBase::CloseEnough(const double f1, const double f2)
 {

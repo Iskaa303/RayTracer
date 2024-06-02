@@ -3,6 +3,29 @@
 // The constructor
 RT::Scene::Scene()
 {
+    // Create some materials
+    auto testMaterial1 = std::make_shared<RT::SimpleMaterial> (RT::SimpleMaterial());
+    auto testMaterial2 = std::make_shared<RT::SimpleMaterial> (RT::SimpleMaterial());
+    auto testMaterial3 = std::make_shared<RT::SimpleMaterial> (RT::SimpleMaterial());
+    auto floorMaterial = std::make_shared<RT::SimpleMaterial> (RT::SimpleMaterial());
+
+    // Setup the materials
+    testMaterial1 -> m_baseColor = Vector<double> {std::vector<double>{0.25, 0.5, 0.8}};
+    testMaterial1 -> m_reflectivity = 0.5;
+    testMaterial1 -> m_shininess = 10.0;
+    
+    testMaterial2 -> m_baseColor = Vector<double> {std::vector<double>{1.0, 0.5, 0.0}};
+    testMaterial2 -> m_reflectivity = 0.75;
+    testMaterial2 -> m_shininess = 10.0;
+
+    testMaterial3 -> m_baseColor = Vector<double> {std::vector<double>{1.0, 0.8, 0.0}};
+    testMaterial3 -> m_reflectivity = 0.25;
+    testMaterial3 -> m_shininess = 10.0;
+
+    floorMaterial -> m_baseColor = Vector<double> {std::vector<double>{1.0, 1.0, 1.0}};
+    floorMaterial -> m_reflectivity = 0.5;
+    floorMaterial -> m_shininess = 0.0;
+
     // Configure the camera
     m_camera.SetPosition( Vector<double>{std::vector<double>{0.0, -10.0, -1.0}} );
     m_camera.SetLookAt  ( Vector<double>{std::vector<double>{0.0, 0.0, 0.0}} );
@@ -59,6 +82,12 @@ RT::Scene::Scene()
     m_objectList.at(1) -> m_baseColor = Vector<double>{std::vector<double>{1.0, 0.5, 0.0}};
     m_objectList.at(2) -> m_baseColor = Vector<double>{std::vector<double>{1.0, 0.8, 0.0}};
 
+    // Assign materials to objects
+    m_objectList.at(0) -> AssignMaterial(testMaterial1);
+    m_objectList.at(1) -> AssignMaterial(testMaterial2);
+    m_objectList.at(2) -> AssignMaterial(testMaterial3);
+    m_objectList.at(3) -> AssignMaterial(floorMaterial);
+
     // Construct a test light
     m_lightList.push_back(std::make_shared<RT::PointLight> (RT::PointLight()));
     m_lightList.at(0) -> m_location = Vector<double> {std::vector<double> {5.0, -10.0, -5.0}};
@@ -106,66 +135,78 @@ bool RT::Scene::Render(Image &outputImage)
             Vector<double> closestIntPoint      {3};
             Vector<double> closestLocalNormal   {3};
             Vector<double> closestLocalColor    {3};
-            double minDist = 1e6;
-            bool intersectionFound = false;
-            for (auto currentObject : m_objectList)
-            {
-                bool validInt = currentObject -> TestIntersection(cameraRay, intPoint, localNormal, localColor);
-
-                // If we have a valid intersection, change the pixel color to red
-                if (validInt)
-                {
-                    // Set the flag to indicate that we found an intersection
-                    intersectionFound = true;
-
-                    // Compute the distance between the camera and the point of intersection
-                    double dist = (intPoint - cameraRay.m_point1).norm();
-
-                    // If this object is closer to the camera than any one that we have seen before, then store a reference to it
-					if (dist < minDist)
-					{
-						minDist = dist;
-						closestObject = currentObject;
-						closestIntPoint = intPoint;
-						closestLocalNormal = localNormal;
-						closestLocalColor = localColor;
-					}
-                }
-            }
+            bool intersectionFound = CastRay(cameraRay, closestObject, closestIntPoint, closestLocalNormal, closestLocalColor);
+            
             // Compute the illumination for the closest object, assuming that there was a valid intersection
 			if (intersectionFound)
 			{
-				// Compute the intensity of illumination
-				double intensity;
-				Vector<double> color {3};
-				double red = 0.0;
-				double green = 0.0;
-				double blue = 0.0;
-				bool validIllum = false;
-				bool illumFound = false;
-				for (auto currentLight : m_lightList)
+				// Check if the object has a material
+				if (closestObject -> m_hasMaterial)
 				{
-					validIllum = currentLight -> ComputeIllumination(closestIntPoint, closestLocalNormal, m_objectList, closestObject, color, intensity);
-					
-					if (validIllum)
-					{
-						illumFound = true;
-						red += color.GetElement(0) * intensity;
-						green += color.GetElement(1) * intensity;
-						blue += color.GetElement(2) * intensity;
-					}
+					// Use the material to compute the color
+					RT::MaterialBase::m_reflectionRayCount = 0;
+					Vector<double> color = closestObject -> m_pMaterial -> ComputeColor
+                    (
+                        m_objectList, m_lightList,
+						closestObject, closestIntPoint,
+						closestLocalNormal, cameraRay
+                    );
+					outputImage.SetPixel(x, y, color.GetElement(0), color.GetElement(1), color.GetElement(2));
 				}
-				
-				if (illumFound)
+				else
 				{
-					red *= closestLocalColor.GetElement(0);
-					green *= closestLocalColor.GetElement(1);
-					blue *= closestLocalColor.GetElement(2);
-					outputImage.SetPixel(x, y, red, green, blue);
+					// Use the basic method to compute the color.
+					Vector<double> matColor = RT::MaterialBase::ComputeDiffuseColor
+                    (
+                        m_objectList, m_lightList,
+						closestObject, closestIntPoint,
+						closestLocalNormal, closestObject->m_baseColor
+                    );
+					outputImage.SetPixel(x, y, matColor.GetElement(0), matColor.GetElement(1), matColor.GetElement(2));
 				}
-            }
+			}
         }
     }
 
     return true;
+}
+
+// Function to cast a ray into the scene
+bool RT::Scene::CastRay
+(
+    RT::Ray &castRay, std::shared_ptr<RT::ObjectBase> &closestObject,
+    Vector<double> &closestIntPoint, Vector<double> &closestLocalNormal,
+    Vector<double> &closestLocalColor
+) {
+    Vector<double> intPoint      {3};
+    Vector<double> localNormal   {3};
+    Vector<double> localColor    {3};
+    double minDist = 1e6;
+    bool intersectionFound = false;
+    for (auto currentObject : m_objectList)
+    {
+        bool validInt = currentObject -> TestIntersection(castRay, intPoint, localNormal, localColor);
+
+        // If we have a valid intersection, change the pixel color to red
+        if (validInt)
+        {
+            // Set the flag to indicate that we found an intersection
+            intersectionFound = true;
+
+            // Compute the distance between the camera and the point of intersection
+            double dist = (intPoint - castRay.m_point1).norm();
+
+            // If this object is closer to the camera than any one that we have seen before, then store a reference to it
+            if (dist < minDist)
+            {
+                minDist = dist;
+                closestObject = currentObject;
+                closestIntPoint = intPoint;
+                closestLocalNormal = localNormal;
+                closestLocalColor = localColor;
+            }
+        }
+    }
+
+    return intersectionFound;
 }

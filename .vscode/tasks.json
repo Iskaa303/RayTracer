@@ -11,6 +11,7 @@
                 "src\\*.cpp",
                 "src\\RayTrace\\*.cpp",
                 "src\\RayTrace\\Lights\\*.cpp",
+                "src\\RayTrace\\Materials\\*.cpp",
                 "src\\RayTrace\\Primatives\\*.cpp",
                 "-o",
                 "build\\game.exe",
